@@ -3,16 +3,35 @@
 </style></head><body>
 <header class="top"><div class="wrap"><b>입영 동의서 관리자</b><a href="/">작성 화면</a></div></header>
 <div class="wrap">
-<section id="login" class="card login"><h2>관리자 로그인</h2><div class="row"><input id="pw" type="password" placeholder="관리자 비밀번호" style="flex:1"><button onclick="login()">로그인</button></div><p id="loginMsg"></p></section>
-<section id="dash" class="hide">
+<section id="loginBox" class="card login"><h2>관리자 로그인</h2><div class="row"><input id="pw" type="password" placeholder="관리자 비밀번호" style="flex:1"><button onclick="doLogin()">로그인</button></div><p id="loginMsg"></p></section>
+<section id="dashBox" class="hide">
 <div class="card"><div class="row"><input id="q" placeholder="이름/소대번호 검색" oninput="load()"><input id="cohort" placeholder="기수 필터 ex) 726기" oninput="load()"><button onclick="load()">새로고침</button><button class="gray" onclick="csv()">CSV 내보내기</button><button class="danger" onclick="logout()">로그아웃</button></div></div>
 <div class="card stats"><div class="stat"><b id="total">0</b>총 제출</div><div class="stat"><b id="c1">0</b>1중대</div><div class="stat"><b id="c2">0</b>2중대</div><div class="stat"><b id="c3">0</b>3중대</div></div>
 <div class="card table"><table><thead><tr><th>기수</th><th>이름</th><th>소대번호</th><th>생년월일</th><th>동의</th><th>서명</th><th>제출시간</th><th>삭제</th></tr></thead><tbody id="tb"></tbody></table></div>
 </section></div>
 <script>
 let token=localStorage.getItem('consentAdminToken')||'';
-function show(){login.classList.toggle('hide',!!token);dash.classList.toggle('hide',!token);if(token)load()}
-async function login(){let r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw.value})});let o=await r.json();if(!r.ok){loginMsg.textContent=o.error||'로그인 실패';return}token=o.token;localStorage.setItem('consentAdminToken',token);show()}
+function show(){
+  document.getElementById('loginBox').classList.toggle('hide', !!token);
+  document.getElementById('dashBox').classList.toggle('hide', !token);
+  if(token) load();
+}
+async function doLogin(){
+  const password = document.getElementById('pw').value;
+  let r = await fetch('/api/admin/login',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({password})
+  });
+  let o = await r.json();
+  if(!r.ok){
+    document.getElementById('loginMsg').textContent = o.error || '로그인 실패';
+    return;
+  }
+  token=o.token;
+  localStorage.setItem('consentAdminToken',token);
+  show();
+}
 function logout(){localStorage.removeItem('consentAdminToken');token='';show()}
 async function load(){let u='/api/admin/consents?q='+encodeURIComponent(q.value)+'&cohort='+encodeURIComponent(cohort.value);let r=await fetch(u,{headers:{Authorization:'Bearer '+token}});if(r.status===401){logout();return}let o=await r.json();total.textContent=o.total;c1.textContent=o.stats.c1;c2.textContent=o.stats.c2;c3.textContent=o.stats.c3;tb.innerHTML=o.rows.map(x=>`<tr><td>${esc(x.cohort)}</td><td>${esc(x.name)}</td><td>${esc(x.platoon)}</td><td>${esc(x.birth_date)}</td><td>${[x.agree1,x.agree2,x.agree3,x.agree4,x.agree5].every(Boolean)?'전체':'일부'}</td><td><img class="sig" src="${x.signature_data}"></td><td>${new Date(x.submitted_at).toLocaleString()}</td><td><button class="danger" onclick="del(${x.id})">삭제</button></td></tr>`).join('')}
 function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
