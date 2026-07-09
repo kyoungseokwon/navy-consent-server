@@ -1,1 +1,22 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>관리자</title><style>body{font-family:Arial;background:#f4f7fb}.c{max-width:800px;margin:40px auto;background:white;padding:24px;border-radius:16px}h1{color:#10245b}</style><div class="c"><h1>관리자 페이지</h1><p>1차 실행본입니다. 다음 단계에서 기존 사복택배/BAND 사이트와 동일한 관리자 로그인, 기수 관리, 중대별 통계, 검색, 엑셀, PDF 기능을 연결합니다.</p></div></html>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>관리자</title><style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#f4f7fb;color:#172033}.top{background:#10245b;color:#fff;padding:18px}.wrap{max-width:1050px;margin:auto;padding:16px}.top .wrap{padding:0;display:flex;justify-content:space-between;align-items:center}.top a{color:#fff}.card{background:#fff;border-radius:16px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #1a2b5010}.row{display:flex;gap:8px;flex-wrap:wrap}input,select,button{font-size:15px;padding:11px;border:1px solid #ccd4e1;border-radius:9px}input{min-width:0}button{font-weight:bold;background:#2463eb;color:#fff;border:0}.gray{background:#e9edf5;color:#172033}.danger{background:#d93025}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.stat{background:#f7f9fd;padding:12px;border-radius:10px;text-align:center}.stat b{display:block;font-size:22px;color:#10245b}.table{overflow:auto}table{border-collapse:collapse;width:100%;min-width:800px}th,td{padding:10px;border-bottom:1px solid #e7ebf2;text-align:left;font-size:13px}th{background:#f7f9fd}.sig{max-width:110px;max-height:55px}.login{max-width:420px;margin:50px auto}.hide{display:none}@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style></head><body>
+<header class="top"><div class="wrap"><b>입영 동의서 관리자</b><a href="/">작성 화면</a></div></header>
+<div class="wrap">
+<section id="login" class="card login"><h2>관리자 로그인</h2><div class="row"><input id="pw" type="password" placeholder="관리자 비밀번호" style="flex:1"><button onclick="login()">로그인</button></div><p id="loginMsg"></p></section>
+<section id="dash" class="hide">
+<div class="card"><div class="row"><input id="q" placeholder="이름/소대번호 검색" oninput="load()"><input id="cohort" placeholder="기수 필터 ex) 726기" oninput="load()"><button onclick="load()">새로고침</button><button class="gray" onclick="csv()">CSV 내보내기</button><button class="danger" onclick="logout()">로그아웃</button></div></div>
+<div class="card stats"><div class="stat"><b id="total">0</b>총 제출</div><div class="stat"><b id="c1">0</b>1중대</div><div class="stat"><b id="c2">0</b>2중대</div><div class="stat"><b id="c3">0</b>3중대</div></div>
+<div class="card table"><table><thead><tr><th>기수</th><th>이름</th><th>소대번호</th><th>생년월일</th><th>동의</th><th>서명</th><th>제출시간</th><th>삭제</th></tr></thead><tbody id="tb"></tbody></table></div>
+</section></div>
+<script>
+let token=localStorage.getItem('consentAdminToken')||'';
+function show(){login.classList.toggle('hide',!!token);dash.classList.toggle('hide',!token);if(token)load()}
+async function login(){let r=await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw.value})});let o=await r.json();if(!r.ok){loginMsg.textContent=o.error||'로그인 실패';return}token=o.token;localStorage.setItem('consentAdminToken',token);show()}
+function logout(){localStorage.removeItem('consentAdminToken');token='';show()}
+async function load(){let u='/api/admin/consents?q='+encodeURIComponent(q.value)+'&cohort='+encodeURIComponent(cohort.value);let r=await fetch(u,{headers:{Authorization:'Bearer '+token}});if(r.status===401){logout();return}let o=await r.json();total.textContent=o.total;c1.textContent=o.stats.c1;c2.textContent=o.stats.c2;c3.textContent=o.stats.c3;tb.innerHTML=o.rows.map(x=>`<tr><td>${esc(x.cohort)}</td><td>${esc(x.name)}</td><td>${esc(x.platoon)}</td><td>${esc(x.birth_date)}</td><td>${[x.agree1,x.agree2,x.agree3,x.agree4,x.agree5].every(Boolean)?'전체':'일부'}</td><td><img class="sig" src="${x.signature_data}"></td><td>${new Date(x.submitted_at).toLocaleString()}</td><td><button class="danger" onclick="del(${x.id})">삭제</button></td></tr>`).join('')}
+function esc(v){return String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]))}
+async function del(id){if(!confirm('정말 삭제할까요?'))return;await fetch('/api/admin/consents/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}});load()}
+function csv(){location.href='/api/admin/consents.csv?token='+encodeURIComponent(token)}
+show();
+</script></body></html>
