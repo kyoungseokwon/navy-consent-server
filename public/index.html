@@ -2,21 +2,115 @@
 :root{--navy:#10245b;--blue:#2463eb;--bg:#f4f7fb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,"Noto Sans KR",sans-serif;color:#172033}.top{background:var(--navy);color:white;padding:20px 16px}.top div{max-width:680px;margin:auto}.top h1{margin:0;font-size:20px}.top p{margin:6px 0 0;opacity:.8;font-size:13px}.toprow{display:flex;align-items:center;justify-content:space-between;gap:12px}.adminbtn{color:white;text-decoration:none;border:1px solid #ffffff66;padding:8px 11px;border-radius:9px;font-size:13px;font-weight:bold;white-space:nowrap}main{max-width:680px;margin:16px auto;padding:0 12px}.page{display:none}.page.on{display:block}.card{background:white;border-radius:16px;padding:20px;box-shadow:0 4px 18px #1a2b5010}.step{font-size:12px;color:#6b7890;font-weight:bold}h2{font-size:21px}.text{white-space:pre-line;line-height:1.75;color:#3d485e}label{display:block;font-weight:bold;margin:16px 0 7px}input[type=text]{width:100%;padding:14px;border:1px solid #ccd4e1;border-radius:10px;font-size:16px}.agree{display:flex;gap:10px;padding:14px;background:#f7f9fd;border-radius:10px;align-items:flex-start}.agree input{width:22px;height:22px}.nav{display:flex;gap:10px;margin-top:20px}.btn{border:0;border-radius:10px;padding:14px 18px;font-size:16px;font-weight:bold}.prev{background:#e9edf5}.next{background:var(--blue);color:white;margin-left:auto}.submit{background:#18b85a;color:white;flex:1}canvas{width:100%;height:190px;border:1px solid #ccd4e1;border-radius:10px;touch-action:none}.small{font-size:13px;color:#6b7890}
 </style></head><body><header class="top"><div><div class="toprow"><h1>입영 서류 및 개인정보 동의서</h1><a class="adminbtn" href="/admin.html">관리자</a></div><p>내용을 확인한 후 동의 및 서명을 진행해 주세요.</p></div></header><main><form id="f">
 <section class="page on" data-p="1"><div class="card"><div class="step">1 / 7</div><h2>본인 정보</h2><label>이름</label><input name="name" type="text" required><label>소대번호</label><input name="platoon" type="text" placeholder="ex) 10101" required><label>생년월일</label><input name="birthDate" type="text" placeholder="ex) 991107" required><div class="nav"><button type="button" class="btn next" onclick="go(2)">다음</button></div></div></section>
-<section class="page" data-p="2"><div class="card"><div class="step">2 / 7</div><h2>개인정보 수집·이용 동의서</h2><div class="text">해군은 군사특기 분류 및 병 역량교육을 위해 개인정보를 수집·이용하고자 합니다.
+<section class="page" data-p="2"><div class="card"><div class="step">2 / 7</div><h2>개인정보 수집·이용 동의서</h2><div class="text">해군은 군사특기 분류 및 병 역량교육을 위해 아래와 같이 개인정보를 수집·이용하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
 
-※ 실제 운용 전 승인된 최종 원문 전체를 이 영역에 입력하세요.</div><label class="agree"><input name="agree1" type="checkbox" required><span>개인정보 수집·이용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(1)">이전</button><button type="button" class="btn next" onclick="go(3)">다음</button></div></div></section>
-<section class="page" data-p="3"><div class="card"><div class="step">3 / 7</div><h2>개인소유 정보통신장비 반입·운용 간 보안 서약서</h2><div class="text">본인은 부대 내 개인용 상용 정보통신장비를 반입하여 운용함에 있어 관련 보안수칙을 준수할 것을 서약합니다.
+개인정보 수집·이용 내역
 
-※ 실제 운용 전 승인된 최종 원문 전체를 입력하세요.</div><label class="agree"><input name="agree2" type="checkbox" required><span>보안 서약 내용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(2)">이전</button><button type="button" class="btn next" onclick="go(4)">다음</button></div></div></section>
-<section class="page" data-p="4"><div class="card"><div class="step">4 / 7</div><h2>고유식별정보 처리 동의서</h2><div class="text">고유식별정보 처리에 관한 내용을 확인합니다.
+● 수집·이용 항목
+계급, 군번, 성명, 주민번호, 학력(고등학교, 대학교, 대학원), 주소 연락처, 병무청 입영신체 또는 판정검사 세부결과(심리검사, 병리검사, 신장, 체중, 시력, 혈압, 흉부신경, 이비인후과, 비뇨기과, 피부과, 신경과, 정신과, 치과, 병역처분, 검사소견, 신체등급, 색각여부 등)
 
-※ 승인된 최종 원문 전체를 입력하세요.</div><label class="agree"><input name="agree3" type="checkbox" required><span>고유식별정보 처리에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(3)">이전</button><button type="button" class="btn next" onclick="go(5)">다음</button></div></div></section>
-<section class="page" data-p="5"><div class="card"><div class="step">5 / 7</div><h2>개인정보 처리 동의서</h2><div class="text">개인정보의 수집·이용 및 제공에 관한 내용을 확인합니다.
+● 수집·이용 목적
+군사특기 분류 및 병 양성교육 시 활용
 
-※ 승인된 최종 원문 전체를 입력하세요.</div><label class="agree"><input name="agree4" type="checkbox" required><span>개인정보 처리에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(4)">이전</button><button type="button" class="btn next" onclick="go(6)">다음</button></div></div></section>
-<section class="page" data-p="6"><div class="card"><div class="step">6 / 7</div><h2>개인정보 및 민감정보 수집·이용 동의서</h2><div class="text">개인정보 수집·이용 내역, 민감정보 수집·이용 내역 및 개인정보 제3자 제공 내역을 확인합니다.
+● 보유기간
+입영일로부터 5년간
 
-※ 승인된 최종 원문 전체를 입력하세요.</div><label class="agree"><input name="agree5" type="checkbox" required><span>개인정보 및 민감정보 수집·이용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(5)">이전</button><button type="button" class="btn next" onclick="go(7)">다음</button></div></div></section>
+※ 위 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다. 그러나 동의를 거부할 경우 군사특기 분류 시 자격증, 전공학과, 경력 점수가 0점 처리됩니다.</div><label class="agree"><input name="agree1" type="checkbox" required><span>개인정보 수집·이용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(1)">이전</button><button type="button" class="btn next" onclick="go(3)">다음</button></div></div></section>
+<section class="page" data-p="3"><div class="card"><div class="step">3 / 7</div><h2>개인소유 정보통신장비 반입·운용 간 보안 서약서</h2><div class="text">본인은 부대 내 개인용 상용 정보통신장비를 반입하여 운용함에 있어 다음 사항을 준수할 것을 서약합니다.
+
+1. 개인용 상용 정보통신장비를 영내 반입함에 있어 다음 사항을 준수한다.
+가. 문자 및 그림, 영상 등을 저장·촬영·전송·영상통화 및 모바일 인터넷을 할 수 있는 장비를 영내 반입 시 보안담당관에게 등록한다.
+나. 등록번호를 장비에 부착한다.
+
+2. 개인용 상용 정보통신장비를 운용함에 있어 다음 사항을 준수한다.
+가. 군사기밀 또는 민감한 군사사항 통화 금지
+나. 군사사항 입력, 저장, 촬영 및 전송 금지
+다. 업무용 PC(국방망, 인터넷 등)에 접속 금지
+라. 군사통제구역, 비밀작업실 및 비밀회의장 등 보안규정에 명시된 시설에 반입 금지
+마. 군사보호구역 내에서 모바일 인터넷·사진촬영·녹음·화상통화 금지
+바. 본인(가족) 명의의 핸드폰만 반입하여 사용
+사. 차량용 블랙박스(스마트폰) 사용에 따른 보안대책 철저히 준수
+1) 주기적인 저장 영상 삭제 및 교통사고시 부대관련 영상 확인·제거 후 대외제공
+2) 부대 관련 영상을 인터넷이 연결된 PC에 저장 금지
+3) 입영 시 블랙박스 촬영 금지 조치
+4) 스마트폰용 블랙박스 앱 사용 시에도 블랙박스 보안대책 준수
+
+3. 홍보를 목적으로 상용 정보통신장비를 이용할 경우 ‘국방홍보훈령’과 ‘SNS 보안지침’ 및 ‘SNS 가이드라인’을 준수한다.
+
+4. 정기/수시 보안감사 및 부대계획에 의거 실시하는 보안점검, 군사기밀유출 사고조사 과정에서 군사기밀 유출 원인파악을 위한 필요성과 상당성이 인정되는 경우 보안감사(점검), 조사에 적극 협조한다.</div><label class="agree"><input name="agree2" type="checkbox" required><span>보안 서약 내용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(2)">이전</button><button type="button" class="btn next" onclick="go(4)">다음</button></div></div></section>
+<section class="page" data-p="4"><div class="card"><div class="step">4 / 7</div><h2>고유식별정보 처리 동의서</h2><div class="text">개인정보보호법 제15조(개인정보의 수집·이용), 제17조(개인정보의 제공) 및 제24조(고유식별정보의 처리 제한)에 따라 아래와 같이 본인의 고유식별정보 처리에 동의합니다.
+
+1. 고유식별정보를 제공받는 자
+- 국군재정관리단, 은행 등 금융기관, 기타 급여 관련 업무처리 기관 및 부대(서)에 근무하는 해당 업무 담당자
+
+2. 고유식별정보를 제공받는 자의 고유식별정보 수집·이용 목적
+- 제반 급여 관련 업무처리
+
+3. 제공하는 고유식별정보의 항목
+- 주민등록번호
+
+4. 고유식별정보를 제공받는 자의 개인정보 보유 및 이용 기간
+- 입대 시부터 전역 시까지
+
+※ 귀하는 고유식별정보의 제공을 거부할 권리가 있으며, 거부할 경우 귀하의 제반 급여 지급에 제한이 있을 수 있습니다.</div><label class="agree"><input name="agree3" type="checkbox" required><span>고유식별정보 처리에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(3)">이전</button><button type="button" class="btn next" onclick="go(5)">다음</button></div></div></section>
+<section class="page" data-p="5"><div class="card"><div class="step">5 / 7</div><h2>개인정보 처리 동의서</h2><div class="text">개인정보보호법 제15조(개인정보의 수집·이용) 및 제17조(개인정보의 제공)에 따라 아래와 같이 본인의 개인정보 처리에 동의합니다.
+
+1. 개인정보를 제공받는 자
+- 국군재정관리단, 은행 등 금융기관, 기타 급여 관련 업무처리 기관 및 부대(서)에 근무하는 해당 업무 담당자
+
+2. 개인정보를 제공받는 자의 개인정보 수집·이용 목적
+- 제반 급여 관련 업무처리
+
+3. 제공하는 개인정보의 항목
+- 복무기록에 기재된 전체 항목
+
+4. 개인정보를 제공받는 자의 개인정보 보유 및 이용 기간
+- 입대 시부터 전역 시까지
+
+※ 귀하는 개인정보의 제공을 거부할 권리가 있으며, 거부할 경우 귀하의 제반 급여 지급에 제한이 있을 수 있습니다.</div><label class="agree"><input name="agree4" type="checkbox" required><span>개인정보 처리에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(4)">이전</button><button type="button" class="btn next" onclick="go(6)">다음</button></div></div></section>
+<section class="page" data-p="6"><div class="card"><div class="step">6 / 7</div><h2>개인정보 및 민감정보 수집·이용 동의서</h2><div class="text">해군교육사는 병 초임배속 부대 선정 및 보수교육부대에서 인사관리 자료로 활용하기 위해 아래와 같이 개인정보 및 민감정보를 수집·이용 및 제3자에게 제공하고자 합니다. 내용을 자세히 읽으신 후 동의 여부를 결정하여 주십시오.
+
+□ 개인정보 수집·이용 내역
+
+● 수집·이용 항목
+- 인사자료에 기재된 전체 항목
+
+● 수집·이용 목적
+- 보수교육부대 및 배속권 부대 인사관리 자료로 활용
+
+● 보유기간
+- 초임부대 배치 후 파기
+
+※ 위 개인정보 수집·이용에 대한 동의를 거부할 권리가 있습니다.
+
+□ 민감정보 수집·이용 내역
+
+● 수집·이용 항목
+- 양성/보수교육 기간 중 확인된 신체적·정신적 질환과 관련된 정보 일체
+
+● 수집·이용 목적
+- 보수교육부대 및 배속권 부대 인사관리 자료로 활용
+
+● 보유기간
+- 초임부대 배치 후 파기
+
+※ 위 민감정보 처리에 대한 동의를 거부할 권리가 있습니다.
+
+□ 개인정보 제3자 제공 내역
+
+● 제공받는 자
+- 보수교육부대(전투/기행/정통교) 및 배속권부대(작전사, 1·2·3함대, 교육사, 진기사) (인사과)
+
+● 제공 목적
+- 보수교육부대 및 배속권 부대 인사관리 자료로 활용
+
+● 제공 항목
+- 양성·보수교육 기간 중 확인된 신체적·정신적 질환 정보 일체
+
+● 제공받는 자의 보유기간
+- (보수교육부대)전출 후 파기, (배속권부대)초임부대 배치 후 파기
+
+※ 위 개인정보 제공에 대한 동의를 거부할 권리가 있습니다.</div><label class="agree"><input name="agree5" type="checkbox" required><span>개인정보 및 민감정보 수집·이용에 동의합니다.</span></label><div class="nav"><button type="button" class="btn prev" onclick="go(5)">이전</button><button type="button" class="btn next" onclick="go(7)">다음</button></div></div></section>
 <section class="page" data-p="7"><div class="card"><div class="step">7 / 7</div><h2>최종 확인 및 서명</h2><p>본인은 상기 내용을 모두 확인하였으며 이에 동의합니다.</p><label>서명</label><canvas id="sig"></canvas><p class="small">손가락 또는 마우스로 서명해 주세요.</p><div class="nav"><button type="button" class="btn prev" onclick="go(6)">이전</button><button type="button" class="btn prev" onclick="clearSig()">지우기</button><button class="btn submit">제출</button></div></div></section>
 </form></main><script>
 let cur=1,draw=false,signed=false;const c=document.getElementById('sig'),x=c.getContext('2d');
