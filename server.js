@@ -73,27 +73,59 @@ app.get("/api/status", async (req, res) => {
 });
 
 app.post("/api/consents", async (req, res) => {
+  const client = await pool.connect();
   try {
     const b = req.body || {};
+    const name = String(b.name || "").trim();
+    const birthDate = String(b.birthDate || "").trim();
+    const platoon = String(b.platoon || "").trim();
     const agrees = ["agree1","agree2","agree3","agree4","agree5"].map(k => b[k] === "on" || b[k] === true);
-    if (!b.name || !b.platoon || !b.birthDate || !b.signature || agrees.some(v => !v)) {
+    if (!name || !platoon || !birthDate || !b.signature || agrees.some(v => !v)) {
       return res.status(400).json({ error: "필수 항목을 확인해 주세요." });
     }
+
     const cohort = await getSetting("active_cohort", "1기");
     if (await isClosed(cohort)) {
       return res.status(403).json({ error: "현재 기수는 마감되어 제출할 수 없습니다." });
     }
     await ensureCohort(cohort);
-    await pool.query(
-      `insert into consent_submissions
-       (cohort,name,platoon,birth_date,agree1,agree2,agree3,agree4,agree5,signature_data)
-       values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-      [cohort,b.name,b.platoon,b.birthDate,...agrees,b.signature]
+
+    await client.query("begin");
+    await client.query("select pg_advisory_xact_lock(hashtext($1))", [cohort + "|" + name + "|" + birthDate]);
+    const existing = await client.query(
+      `select id from consent_submissions
+       where cohort=$1 and name=$2 and birth_date=$3
+       order by submitted_at desc limit 1`,
+      [cohort, name, birthDate]
     );
-    res.json({ ok: true, cohort });
+
+    let mode;
+    if (existing.rows.length) {
+      await client.query(
+        `update consent_submissions set
+         platoon=$1, agree1=$2, agree2=$3, agree3=$4, agree4=$5, agree5=$6,
+         signature_data=$7, submitted_at=now()
+         where id=$8`,
+        [platoon, ...agrees, b.signature, existing.rows[0].id]
+      );
+      mode = "updated";
+    } else {
+      await client.query(
+        `insert into consent_submissions
+         (cohort,name,platoon,birth_date,agree1,agree2,agree3,agree4,agree5,signature_data)
+         values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [cohort, name, platoon, birthDate, ...agrees, b.signature]
+      );
+      mode = "created";
+    }
+    await client.query("commit");
+    res.json({ ok: true, cohort, mode });
   } catch (e) {
+    await client.query("rollback").catch(() => {});
     console.error(e);
     res.status(500).json({ error: "서버 오류" });
+  } finally {
+    client.release();
   }
 });
 
@@ -240,4 +272,5 @@ init().then(() => app.listen(PORT, () => console.log("Server running on", PORT))
   console.error(e);
   process.exit(1);
 });
+
 
