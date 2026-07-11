@@ -3,7 +3,7 @@
 </style></head><body>
 <header class="top"><div class="wrap"><b>입영 동의서 관리자</b><a href="/">작성 화면</a></div></header>
 <div class="wrap">
-<section id="loginBox" class="card login"><h2>관리자 로그인</h2><div class="row"><input id="pw" type="password" placeholder="관리자 비밀번호" style="flex:1"><button onclick="doLogin()">로그인</button></div><p id="loginMsg"></p></section>
+<section id="loginBox" class="card login"><h2>관리자 로그인</h2><div class="row"><input id="pw" type="text" inputmode="text" lang="ko" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="관리자 비밀번호" style="flex:1;-webkit-text-security:disc"><button onclick="doLogin()">로그인</button></div><p id="loginMsg"></p></section>
 <section id="dashBox" class="hide">
 <div class="card"><div class="row"><input id="q" placeholder="이름/소대번호 검색" oninput="load()"><input id="cohort" placeholder="기수 필터 ex) 726기" oninput="load()"><button onclick="load()">새로고침</button><button class="gray" onclick="csv()">CSV 내보내기</button><button class="danger" onclick="logout()">로그아웃</button></div></div>
 <div class="card stats"><div class="stat"><b id="total">0</b>총 제출</div><div class="stat"><b id="c1">0</b>1중대</div><div class="stat"><b id="c2">0</b>2중대</div><div class="stat"><b id="c3">0</b>3중대</div></div>
