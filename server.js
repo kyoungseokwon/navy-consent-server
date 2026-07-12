@@ -8,12 +8,16 @@ const { Pool } = require("pg");
 const app = express();
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: { rejectUnauthorized: false },
+  max: 15,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 15000,
+  keepAlive: true
 });
 const tokens = new Set();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "100kb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 async function getSetting(key, fallback = "") {
@@ -73,24 +77,38 @@ app.get("/api/status", async (req, res) => {
 });
 
 app.post("/api/consents", async (req, res) => {
-  const client = await pool.connect();
+  let client;
   try {
     const b = req.body || {};
     const name = String(b.name || "").trim();
     const birthDate = String(b.birthDate || "").trim();
     const platoon = String(b.platoon || "").trim();
+    const signatureName = String(b.signatureName || "").trim();
     const agrees = ["agree1","agree2","agree3","agree4","agree5"].map(k => b[k] === "on" || b[k] === true);
-    if (!name || !platoon || !birthDate || !b.signature || agrees.some(v => !v)) {
+    if (!name || !platoon || !birthDate || !signatureName || agrees.some(v => !v)) {
       return res.status(400).json({ error: "필수 항목을 확인해 주세요." });
     }
+    if (signatureName !== name) {
+      return res.status(400).json({ error: "서명 이름은 첫 화면의 이름과 같아야 합니다." });
+    }
 
-    const cohort = await getSetting("active_cohort", "1기");
-    if (await isClosed(cohort)) {
+    client = await pool.connect();
+    await client.query("begin");
+    const status = await client.query(`
+      select
+        coalesce((select value from consent_settings where key='active_cohort'), '1기') as cohort,
+        coalesce((select value from consent_settings where key='closed:' ||
+          coalesce((select value from consent_settings where key='active_cohort'), '1기')), 'false') as closed
+    `);
+    const cohort = status.rows[0].cohort;
+    if (status.rows[0].closed === "true") {
+      await client.query("rollback");
       return res.status(403).json({ error: "현재 기수는 마감되어 제출할 수 없습니다." });
     }
-    await ensureCohort(cohort);
-
-    await client.query("begin");
+    await client.query(
+      "insert into consent_settings(key,value) values($1,$2) on conflict(key) do nothing",
+      ["cohort:" + cohort, cohort]
+    );
     await client.query("select pg_advisory_xact_lock(hashtext($1))", [cohort + "|" + name + "|" + birthDate]);
     const existing = await client.query(
       `select id from consent_submissions
@@ -106,7 +124,7 @@ app.post("/api/consents", async (req, res) => {
          platoon=$1, agree1=$2, agree2=$3, agree3=$4, agree4=$5, agree5=$6,
          signature_data=$7, submitted_at=now()
          where id=$8`,
-        [platoon, ...agrees, b.signature, existing.rows[0].id]
+        [platoon, ...agrees, signatureName, existing.rows[0].id]
       );
       mode = "updated";
     } else {
@@ -114,18 +132,18 @@ app.post("/api/consents", async (req, res) => {
         `insert into consent_submissions
          (cohort,name,platoon,birth_date,agree1,agree2,agree3,agree4,agree5,signature_data)
          values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [cohort, name, platoon, birthDate, ...agrees, b.signature]
+        [cohort, name, platoon, birthDate, ...agrees, signatureName]
       );
       mode = "created";
     }
     await client.query("commit");
     res.json({ ok: true, cohort, mode });
   } catch (e) {
-    await client.query("rollback").catch(() => {});
+    if (client) await client.query("rollback").catch(() => {});
     console.error(e);
-    res.status(500).json({ error: "서버 오류" });
+    if (!res.headersSent) res.status(500).json({ error: "서버가 혼잡합니다. 잠시 후 다시 제출해 주세요." });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 });
 
@@ -238,7 +256,7 @@ app.get("/api/admin/consents.xlsx", auth, async (req, res) => {
   try {
     const cohort = req.query.cohort || await getSetting("active_cohort", "1기");
     const r = await pool.query(
-      `select cohort,name,platoon,birth_date,agree1,agree2,agree3,agree4,agree5,submitted_at
+      `select cohort,name,platoon,birth_date,agree1,agree2,agree3,agree4,agree5,signature_data,submitted_at
        from consent_submissions where cohort=$1 order by platoon,name`,
       [cohort]
     );
@@ -252,6 +270,7 @@ app.get("/api/admin/consents.xlsx", auth, async (req, res) => {
       "고유식별정보 처리":x.agree3 ? "동의" : "미동의",
       "개인정보 처리":x.agree4 ? "동의" : "미동의",
       "개인정보·민감정보":x.agree5 ? "동의" : "미동의",
+      "서명자 이름":String(x.signature_data || "").startsWith("data:image/") ? "기존 손글씨 서명" : x.signature_data,
       "제출시간":x.submitted_at
     }));
     const wb = XLSX.utils.book_new();
@@ -272,5 +291,3 @@ init().then(() => app.listen(PORT, () => console.log("Server running on", PORT))
   console.error(e);
   process.exit(1);
 });
-
-
